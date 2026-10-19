@@ -1,0 +1,17 @@
+"use client";
+
+import Link from "next/link";
+import { FormEvent, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useSession, sessionStore } from "@/lib/session-store";
+import { getFavorites, getOrders, getProfile, type FavoriteProduct, type Order, updateProfile } from "@/lib/api-client";
+
+export default function AccountPage() {
+  const session = useSession(); const router = useRouter(); const [orders, setOrders] = useState<Order[]>([]); const [favorites, setFavorites] = useState<FavoriteProduct[]>([]); const [address, setAddress] = useState(""); const [displayName, setDisplayName] = useState(""); const [saved, setSaved] = useState("");
+  useEffect(() => { sessionStore.hydrate(); }, []);
+  useEffect(() => { if (!session.accessToken) return; Promise.all([getOrders(), getFavorites(), getProfile()]).then(([nextOrders, nextFavorites, profile]) => { setOrders(nextOrders); setFavorites(nextFavorites); setDisplayName(profile.display_name); }).catch(() => undefined); }, [session.accessToken]);
+  if (!session.user) return <main><section className="shell"><h1>个人中心</h1><p>请先登录。</p><Link className="action-link" href="/login">去登录</Link></section></main>;
+  async function saveAddress(event: FormEvent) { event.preventDefault(); const token = sessionStore.getState().accessToken; const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000"; await fetch(`${base}/api/v1/profile/addresses`, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ recipient_name: session.user?.display_name, phone: "13800000000", province: "北京", city: "北京", district: "朝阳", detail: address, is_default: true }) }); setSaved("地址已保存"); }
+  async function saveProfile(event: FormEvent) { event.preventDefault(); const updated = await updateProfile(displayName); sessionStore.setSession({ ...sessionStore.getState(), user: updated }); setSaved("资料已保存"); }
+  return <main><section className="shell"><div className="account-head"><div><Link href="/">← FashionRAG</Link><h1>个人中心</h1><p className="muted">{session.user.email}</p></div><button type="button" onClick={() => { sessionStore.logout(); router.push("/"); }}>退出登录</button></div><section className="account-grid"><div className="account-panel"><h2>个人资料</h2><form className="checkout-form" onSubmit={saveProfile}><input required value={displayName} onChange={(e) => setDisplayName(e.target.value)} aria-label="昵称" /><button type="submit">保存资料</button></form></div><div className="account-panel"><h2>收货地址</h2><form className="checkout-form" onSubmit={saveAddress}><textarea required minLength={5} value={address} onChange={(e) => setAddress(e.target.value)} placeholder="详细地址" /><button type="submit">保存地址</button></form>{saved && <p role="status">{saved}</p>}</div><div className="account-panel"><h2>我的收藏</h2>{favorites.length === 0 ? <p className="muted">暂无收藏</p> : favorites.map((item) => <Link key={item.id} href={`/products/${item.id}`}><p>{item.name}</p></Link>)}</div><div className="account-panel"><h2>我的订单</h2>{orders.length === 0 ? <p className="muted">暂无订单</p> : orders.slice(0, 5).map((order) => <p key={order.id}>{order.order_number} · ¥{order.total_amount} · {order.status}</p>)}</div></section><div className="account-links"><Link className="action-link" href="/cart">购物车</Link><Link className="action-link" href="/orders">全部订单</Link><Link className="action-link" href="/concierge">AI 导购</Link></div></section></main>;
+}

@@ -1,0 +1,20 @@
+sequenceDiagram
+  participant U as User
+  participant A as AgentRunner
+  participant M as Chat Model
+  participant T as Business Tool
+  participant R as RAG Retriever
+  participant DB as Database/pgvector
+  U->>A: question
+  A->>M: messages + JSON tool schemas
+  M-->>A: structured tool call
+  A->>T: validate arguments and execute
+  T->>DB: read live product/inventory/order facts
+  DB-->>T: authoritative result
+  A->>R: retrieve filtered evidence
+  R->>DB: keyword + vector search
+  DB-->>R: versioned chunks
+  R-->>A: evidence + citation locator
+  A->>M: tool results + evidence
+  M-->>A: grounded Chinese answer
+  A-->>U: answer + citations or human handoff

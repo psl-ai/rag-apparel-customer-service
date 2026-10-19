@@ -1,0 +1,19 @@
+sequenceDiagram
+  participant B as Browser
+  participant A as FastAPI
+  participant O as OrderService
+  participant DB as Database
+  B->>A: POST /orders + Idempotency-Key
+  A->>O: checkout(user, payload, key)
+  O->>DB: lookup user/key/request_hash
+  alt replay
+    DB-->>O: original order
+    O-->>A: original order
+  else first request
+    O->>DB: lock inventory and validate SKU/price
+    O->>DB: create order/items/payment and decrement stock
+    O->>DB: save idempotency record
+    DB-->>O: committed order
+    O-->>A: new order
+  end
+  A-->>B: uniform ApiResponse

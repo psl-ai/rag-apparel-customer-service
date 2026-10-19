@@ -1,0 +1,75 @@
+* { box-sizing: border-box; }
+body { margin: 0; background: #f7f7f5; color: #1d2421; font-family: Arial, sans-serif; }
+main { min-height: 100vh; padding: 48px 24px; }
+.shell { max-width: 1040px; margin: 0 auto; }
+.status { padding: 16px; border: 1px solid #d5ddd8; background: #ffffff; }
+.action-link, button { display: inline-block; margin-top: 18px; padding: 12px 18px; border: 0; background: #cf5b45; color: white; text-decoration: none; cursor: pointer; }
+.toolbar { display: flex; gap: 12px; margin: 28px 0; }
+.toolbar input { flex: 1; min-width: 0; padding: 12px; border: 1px solid #bdc9c2; background: white; font-size: 16px; }
+.product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+.product-card { border: 1px solid #d5ddd8; background: white; padding: 18px; }
+.product-card h2 { margin: 0 0 8px; font-size: 20px; }
+.product-card p { color: #52605a; line-height: 1.5; }
+.product-mark { height: 120px; margin: -18px -18px 18px; background: #dfe9e3; display: grid; place-items: center; color: #52605a; letter-spacing: .08em; }
+.price { font-size: 22px; font-weight: 700; color: #243d35; }
+.muted { color: #68766f; }
+.detail { max-width: 760px; }
+.detail h1 { font-size: 42px; margin-bottom: 8px; }
+.sku-list { display: grid; gap: 8px; margin-top: 18px; }
+.sku-row { display: flex; justify-content: space-between; border-bottom: 1px solid #d5ddd8; padding: 12px 0; }
+.sku-select { width: 100%; margin: 0; background: #fff; color: #1d2421; text-align: left; }
+.sku-select.selected { outline: 2px solid #cf5b45; }
+@media (max-width: 600px) { main { padding: 28px 16px; } .toolbar { flex-direction: column; } .detail h1 { font-size: 32px; } }
+.concierge { max-width: 860px; }
+.concierge-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; }
+.chat-window { min-height: 420px; max-height: 60vh; overflow: auto; margin: 24px 0; padding: 20px; border: 1px solid #d5ddd8; background: #fff; }
+.turn { max-width: 80%; margin: 0 0 18px; padding: 12px 16px; border-left: 3px solid #cf5b45; background: #f7f7f5; }
+.turn.user { margin-left: auto; border-left: 0; border-right: 3px solid #243d35; }
+.turn p { margin: 6px 0; line-height: 1.6; }
+.citation { display: block; color: #52605a; margin-top: 6px; }
+.chat-form { display: flex; gap: 10px; }
+.chat-form input { flex: 1; padding: 12px; border: 1px solid #bdc9c2; font-size: 16px; }
+.chat-form button { margin-top: 0; }
+.site-nav { display: flex; justify-content: space-between; padding: 16px 24px; border-bottom: 1px solid #d5ddd8; background: #fff; }
+.site-nav span { display: flex; gap: 16px; }
+.auth-card { max-width: 520px; }
+.account-head { display: flex; justify-content: space-between; align-items: flex-start; }
+.account-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 24px; }
+.account-panel { padding: 18px; border: 1px solid #d5ddd8; background: #fff; }
+.reviews { margin-top: 32px; padding-top: 20px; border-top: 1px solid #d5ddd8; }
+.review { padding: 10px 0; border-bottom: 1px solid #edf0ed; }
+.reviews textarea { width: 100%; min-height: 90px; margin-top: 12px; padding: 12px; border: 1px solid #bdc9c2; font: inherit; }
+.account-links { display: flex; gap: 12px; margin-top: 20px; }
+.metric-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 24px 0; }
+.metric { padding: 18px; border: 1px solid #d5ddd8; background: #fff; display: grid; gap: 8px; }
+.metric strong { font-size: 26px; color: #243d35; }
+.admin-section { margin-top: 20px; padding: 18px; border: 1px solid #d5ddd8; background: #fff; }
+.admin-row { display: flex; justify-content: space-between; gap: 20px; padding: 10px 0; border-bottom: 1px solid #edf0ed; }
+.admin-tabs { display: flex; gap: 8px; margin: 24px 0; overflow-x: auto; border-bottom: 1px solid #d5ddd8; }
+.admin-tabs button { margin: 0; background: transparent; color: #52605a; border-bottom: 3px solid transparent; white-space: nowrap; }
+.admin-tabs button.active { color: #243d35; border-bottom-color: #cf5b45; }
+.admin-workspace { display: grid; grid-template-columns: minmax(280px, .9fr) minmax(0, 1.1fr); gap: 16px; }
+.admin-form { display: grid; gap: 12px; margin-top: 16px; }
+.admin-form label { display: grid; gap: 6px; color: #52605a; font-size: 14px; }
+.admin-form input, .admin-form textarea, .admin-form select, .wide-select, .inline-control input { padding: 10px; border: 1px solid #bdc9c2; background: #fff; font: inherit; }
+.admin-form textarea { min-height: 80px; resize: vertical; }
+.wide-select { width: 100%; }
+.secondary { background: #e8eeea; color: #243d35; margin-right: 8px; }
+.danger { background: #9b3d35; }
+.notice { padding: 10px 12px; border: 1px solid #b7d4c2; background: #edf8f0; }
+.notice.error, .error-text { color: #9b3d35; }
+.inline-control { display: flex; gap: 8px; align-items: center; }
+.inline-control input { width: 90px; }
+.trace { border-top: 1px solid #edf0ed; padding: 12px 0; }
+.trace summary { cursor: pointer; font-weight: 600; }
+.success { color: #2e7d52; }
+@media (max-width: 760px) { .admin-workspace { grid-template-columns: 1fr; } .admin-row { align-items: flex-start; flex-direction: column; gap: 8px; } }
+@media (max-width: 600px) { .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 600px) { .site-nav { padding: 14px 16px; } .site-nav span { gap: 8px; font-size: 14px; } .account-grid { grid-template-columns: 1fr; } .account-links { flex-wrap: wrap; } }
+.cart-list, .order-list { display: grid; gap: 10px; margin: 20px 0; }
+.cart-row, .order-card { display: flex; gap: 16px; align-items: center; justify-content: space-between; padding: 16px; border: 1px solid #d5ddd8; background: #fff; }
+.cart-row input { width: 72px; padding: 8px; border: 1px solid #bdc9c2; }
+.checkout-form { display: grid; gap: 16px; margin-top: 24px; }
+.checkout-form label { display: grid; gap: 6px; }
+.checkout-form input, .checkout-form textarea { padding: 12px; border: 1px solid #bdc9c2; font: inherit; }
+.checkout-form textarea { min-height: 100px; }
