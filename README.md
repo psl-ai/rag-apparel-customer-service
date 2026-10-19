@@ -1,124 +1,98 @@
-# FashionRAG
+# 智衣购 RAG｜服装智能导购与客服平台
 
-基于 RAG 的服装商品智能客服与个性化导购系统。
+面向服装电商场景，构建集商品检索、智能问答、个性化导购、库存管理、购物车和订单交易于一体的全栈系统，核心是基于 RAG 的 AI 导购客服能力。
 
-## 当前可运行范围
+## 功能特性
 
-- FastAPI 健康检查、统一响应和请求 ID
-- 用户注册、登录、刷新 Token、RBAC
-- 商品分类、公开商品搜索/详情、运营商品编辑与发布
-- SKU、库存调整与库存不足保护
-- 购物车、模拟支付下单、订单列表
-- Next.js 15 前端壳与服务状态页
+- **RAG 知识库全流程**：文档上传、解析、分块、向量化、混合检索、知识版本管理及异步索引
+- **智能客服 Agent**：意图识别、商品/库存/尺码/售后工具调用、答案生成、引用溯源、拒答及人工转接，支持 SSE 流式对话
+- **完整电商闭环**：用户认证、RBAC 权限、商品与 SKU 管理、库存扣减、购物车、订单、模拟支付、退款
+- **前后端分离**：Next.js + TypeScript 商品目录、AI 导购、购物车、结算、订单及运营管理页面
+- **离线可运行**：默认 SQLite + Mock 模型，无需配置大模型 API 即可本地演示；生产环境可切换 PostgreSQL/pgvector、Redis、MinIO
 
-## 本地开发
+## 技术栈
 
-后端：
+| 层级 | 技术选型 |
+|---|---|
+| 后端 | Python、FastAPI、SQLAlchemy |
+| 数据库 | SQLite（开发）、PostgreSQL + pgvector（生产） |
+| 缓存与异步 | Redis、Celery |
+| RAG | 文档解析、分块、Embedding、混合检索、引用溯源 |
+| Agent | 意图识别、工具调用、SSE 流式输出、Agent Trace |
+| 前端 | Next.js、TypeScript |
+| 部署 | Docker、Docker Compose |
+| 测试 | pytest |
 
-```powershell
+## 快速开始
+
+### 后端
+
+```bash
 cd backend
 python -m pip install -e ".[dev]"
-$env:DATABASE_URL = "postgresql+psycopg://fashionrag:fashionrag@localhost:5432/fashionrag"
-uvicorn app.main:create_app --factory --reload
+uvicorn app.main:create_app --factory --reload --port 8000
 ```
 
-前端：
+### 前端
 
-```powershell
+```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-Docker Desktop 启动后可执行 `docker compose up --build`。PostgreSQL/pgvector 迁移和 Celery 集成验证需要 Docker 守护进程可用；当前业务单元测试可使用 SQLite。
+打开 http://localhost:3000/products 查看商品页，http://localhost:3000/concierge 体验 AI 导购，API 文档位于 http://localhost:8000/docs。
 
-## API
+### Docker 一键启动
 
-- `GET /api/v1/health/live`
-- `POST /api/v1/auth/register`
-- `POST /api/v1/auth/login`
-- `POST /api/v1/auth/refresh`
-- `GET /api/v1/categories`
-- `GET /api/v1/products`
-- `GET /api/v1/products/{id}`
-- `POST /api/v1/cart/items`
-- `POST /api/v1/orders`
-
-所有响应包含 `request_id`、`code`、`message` 和 `data`。
-# FashionRAG
-
-基于 RAG 的单品牌服装商品智能客服与个性化导购系统。当前仓库提供可离线运行的 SQLite + Mock 模型纵向切片，便于开发和秋招演示；生产环境可切换 PostgreSQL/pgvector、Redis、MinIO 和 OpenAI-compatible 服务。
-
-## 本地启动
-
-后端：
-
-```powershell
-cd backend
-uvicorn app.main:create_app --factory --reload --port 8000
+```bash
+docker compose up --build
 ```
 
-前端：
+## 演示账号
 
-```powershell
-cd frontend
-npm run dev
-```
+| 角色 | 账号 | 密码 |
+|---|---|---|
+| 普通用户 | demo@example.com | Demo-123! |
+| 管理员 | admin@example.com | Admin-123! |
 
-打开 <http://localhost:3000/>，商品页位于 `/products`，AI 导购位于 `/concierge`，API 文档位于 <http://localhost:8000/docs>。
+## RAG / Agent 核心能力
 
-顾客完整演示路径：访问 `/register` 注册并自动登录，进入 `/products` 选择规格加入购物车，再从 `/cart` 前往 `/checkout` 模拟下单，最后在 `/orders` 或 `/account` 查看订单。已有账号可直接访问 `/login`。演示用户：`demo@example.com` / `Demo-123!`；运营后台演示账号：`admin@example.com` / `Admin-123!`。
-
-## RAG/Agent 本地能力
-
-- `POST /api/v1/chat`：中文非流式对话，自动持久化会话、消息、AgentTrace 和 ToolCall。
-- `POST /api/v1/chat/stream`：SSE 事件顺序为 `message_start`、`tool_call`、`citation`、`token`、`message_end`。
-- 管理员可通过 `POST /api/v1/knowledge/documents` 上传 Markdown/TXT/CSV，再调用 `/api/v1/knowledge/reindex/{document_id}`。
-- 价格、商品上下架、SKU 和库存始终来自关系数据库；政策/尺码回答引用知识分块来源；证据不足时拒答并转人工。
+- `POST /api/v1/chat`：中文对话，自动持久化会话、消息、AgentTrace 和 ToolCall
+- `POST /api/v1/chat/stream`：SSE 流式输出，事件顺序为 `message_start` → `tool_call` → `citation` → `token` → `message_end`
+- 知识库上传 Markdown/TXT/CSV，支持版本管理和重建索引
+- 价格、库存来自关系数据库；政策/尺码回答引用知识分块来源；证据不足时拒答并转人工
+- 内置离线评测接口，输出 Recall@5、MRR、引用准确率等指标
 
 ## 配置
 
-复制 `.env.example` 为 `.env`，设置 `DATABASE_URL`、`OPENAI_BASE_URL`、`OPENAI_API_KEY`、`CHAT_MODEL` 和 `EMBEDDING_MODEL`。未配置时自动使用 `fashionrag.db` 和确定性 Mock embedding，不会调用付费模型。
-
-Docker Desktop 未启动时，Alembic/pgvector 集成验证会暂缓；SQLite 本地测试不依赖 Docker。
-
-## RAG 版本与评测
-
-知识文档按 `source_key` 管理不可变版本，只有索引成功的版本会成为检索活动版本。默认 `RAG_RETRIEVER_BACKEND=auto`：SQLite 使用本地混合检索，PostgreSQL 自动使用 pgvector 余弦检索；可以显式设为 `sqlite` 或 `pgvector`。
-
-管理员可调用 `GET /api/v1/admin/rag/evaluations` 查看离线评测摘要。知识上传、重建索引和删除均位于 `/api/v1/knowledge/documents`，生产环境由 Celery worker 承担索引任务；本地 SQLite 以同一索引器同步执行。
-
-个人资料 API 位于 `/api/v1/profile`，收藏和评价 API 位于 `/api/v1/products/{id}/favorite` 与 `/api/v1/products/{id}/reviews`，均要求登录并执行用户隔离。
-
-## 秋招演示流程
-
-1. 启动后端：`cd backend; uvicorn app.main:create_app --factory --reload --port 8000`
-2. 启动前端：`cd frontend; npm run dev -- --port 3001`
-3. 打开 `http://localhost:3001/register`，或使用演示账号 `demo@example.com / Demo-123!`。
-4. 进入 `/products` 搜索“风衣”，打开详情，选择 SKU 后加入购物车。
-5. 在 `/checkout` 填写地址并提交模拟支付；使用 `Idempotency-Key` 重试同一请求只会得到原订单。
-6. 在 `/concierge` 依次询问“这个商品穿什么尺码”“现在有库存吗”“退换货政策是什么”，观察尺码表、实时库存和政策引用。
-7. 使用 `admin@example.com / Admin-123!` 进入 `/admin`，查看订单、库存、知识库和 Agent Trace。
-8. 知识库上传支持 Markdown/TXT/CSV；生产环境通过 Celery、Redis、MinIO 和 PostgreSQL/pgvector 执行异步索引。
-
-## 质量与安全说明
-
-- JWT 的角色来自数据库 `user_roles` 关联，不依赖邮箱名称；刷新令牌会重新读取角色。
-- CORS 由 `CORS_ORIGINS` 配置，默认允许本地 3000/3001 端口，部署时应收紧为实际前端域名。
-- 订单接口支持 `Idempotency-Key` 请求头，重复请求安全返回首次创建的订单。
-- RAG 评测接口 `/api/v1/admin/rag/evaluations` 返回 `Recall@5`、MRR、引用准确率和 groundedness 示例指标。
-- Mock Chat/Embedding 是默认离线实现；配置 `OPENAI_BASE_URL`、`OPENAI_API_KEY` 和 `CHAT_MODEL` 后可切换 OpenAI-compatible Chat Completions。
+复制 `.env.example` 为 `.env`，配置 `DATABASE_URL`、`OPENAI_BASE_URL`、`OPENAI_API_KEY`、`CHAT_MODEL` 和 `EMBEDDING_MODEL`。未配置时自动使用 SQLite 和 Mock embedding，不会调用付费模型。
 
 ## 测试
 
-```powershell
+```bash
 cd backend
 pytest -q
-cd ..\frontend
+
+cd ../frontend
 npx tsc --noEmit
 npm run build
 ```
 
-Docker Desktop 未启动时，SQLite 本地模式仍可运行；Compose 的 PostgreSQL/pgvector 验证需要先启动 Docker 守护进程。
+## 项目结构
 
-架构和关键时序图见 [`docs/architecture.md`](docs/architecture.md) 以及 [`docs/diagrams`](docs/diagrams)。
+```
+RAG Apparel Intelligent Customer Service & Shopping Guide/
+├── backend/
+│   ├── app/
+│   │   ├── api/v1/       # API 路由
+│   │   ├── agents/       # RAG Agent 与工具调用
+│   │   ├── rag/          # 知识库、检索、Embedding
+│   │   ├── models/       # 数据模型
+│   │   ├── services/     # 业务逻辑
+│   │   └── tasks/        # Celery 异步任务
+│   └── tests/            # 单元测试
+├── frontend/             # Next.js 前端
+├── docs/                 # 架构文档与时序图
+└── docker-compose.yml
+```
